@@ -13,7 +13,6 @@ struct ContentView: View {
     let MaxFrequency = 4000.0
 
     @State private var frequency = 880.0
-    @State private var isEditing = false
     @State private var isPlaying = false
 
     private let toneGenerator = ToneGenerator()
