@@ -2,7 +2,7 @@
 
 A direct port of [Matt Gallagher's tone generator on Cocoa with Love](https://www.cocoawithlove.com/2010/10/ios-tone-generator-introduction-to.html) to Swift.
 
-![Demo screenshot](https://github.com/AcroMace/ToneGeneratorSwift/raw/main/Demo.png)
+<img src="https://github.com/AcroMace/ToneGeneratorSwift/raw/main/Demo.png" width="240">
 
 The original example was in Objective-C and I originally ported it for the [Theramin](https://github.com/AcroMace/Theramin) project, but I also saw a lot of people asking for a Swift version on StackOverflow, so I'm publishing this separately.
 
