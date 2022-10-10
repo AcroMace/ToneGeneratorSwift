@@ -9,9 +9,18 @@ import SwiftUI
 
 struct ContentView: View {
 
+    let MinFrequency = 40.0
+    let MaxFrequency = 4000.0
+
     @State private var frequency = 880.0
     @State private var isEditing = false
     @State private var isPlaying = false
+
+    private let toneGenerator = ToneGenerator()
+
+    init() {
+        toneGenerator.frequency = frequency
+    }
 
     var body: some View {
         VStack {
@@ -20,14 +29,19 @@ struct ContentView: View {
 
             Slider(
                 value: $frequency,
-                in: 40...4000,
-                onEditingChanged: { editing in
-                    isEditing = editing
+                in: MinFrequency...MaxFrequency,
+                onEditingChanged: { _ in
+                    toneGenerator.frequency = frequency
                 }
             )
 
             Button(isPlaying ? "Stop" : "Play") {
                 isPlaying = !isPlaying
+                if isPlaying {
+                    toneGenerator.play()
+                } else {
+                    toneGenerator.stop()
+                }
             }
         }
         .padding()

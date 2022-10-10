@@ -11,6 +11,7 @@
 		63904E7E28F444E60048F16A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63904E7D28F444E60048F16A /* ContentView.swift */; };
 		63904E8028F444E60048F16A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 63904E7F28F444E60048F16A /* Assets.xcassets */; };
 		63904E8328F444E60048F16A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 63904E8228F444E60048F16A /* Preview Assets.xcassets */; };
+		63904E8A28F449070048F16A /* ToneGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63904E8928F449070048F16A /* ToneGenerator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +20,7 @@
 		63904E7D28F444E60048F16A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		63904E7F28F444E60048F16A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		63904E8228F444E60048F16A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		63904E8928F449070048F16A /* ToneGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToneGenerator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +55,7 @@
 			children = (
 				63904E7B28F444E60048F16A /* ToneGeneratorSwiftApp.swift */,
 				63904E7D28F444E60048F16A /* ContentView.swift */,
+				63904E8928F449070048F16A /* ToneGenerator.swift */,
 				63904E7F28F444E60048F16A /* Assets.xcassets */,
 				63904E8128F444E60048F16A /* Preview Content */,
 			);
@@ -138,6 +141,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				63904E7E28F444E60048F16A /* ContentView.swift in Sources */,
+				63904E8A28F449070048F16A /* ToneGenerator.swift in Sources */,
 				63904E7C28F444E60048F16A /* ToneGeneratorSwiftApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
