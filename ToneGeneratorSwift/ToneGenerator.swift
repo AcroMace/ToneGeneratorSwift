@@ -20,12 +20,15 @@ class ToneGenerator {
 
     // MARK: Public APIs
 
+    /**
+     * This is the frequency actually being changed
+     * Set this to play a different frequency
+     */
     public var frequency: Double = 0
 
     /**
-     * Play a frequency given a value between 0 and 1
+     * Start playing the tone at the frequency if not already playing
      */
-
     func play() {
         if audioComponentInstance == nil {
             audioComponentInstance = createAudioUnit()
@@ -40,6 +43,9 @@ class ToneGenerator {
         }
     }
 
+    /**
+     * Stop playing the tone if currently playing
+     */
     func stop() {
         guard let audioComponentInstance else {
             return
@@ -52,11 +58,21 @@ class ToneGenerator {
 
     // MARK: Private helpers
 
-    private static func RenderToneCallback(inRefCon: UnsafeMutableRawPointer, ioActionFlags: UnsafeMutablePointer<AudioUnitRenderActionFlags>, inTimeStamp: UnsafePointer<AudioTimeStamp>, inBusNumber: UInt32, inNumberFrames: UInt32, ioData: UnsafeMutablePointer<AudioBufferList>?) -> OSStatus {
+    // This is equivalent to RenderTone in the original example
+    private static func RenderToneCallback(
+        inRefCon: UnsafeMutableRawPointer,
+        ioActionFlags: UnsafeMutablePointer<AudioUnitRenderActionFlags>,
+        inTimeStamp: UnsafePointer<AudioTimeStamp>,
+        inBusNumber: UInt32,
+        inNumberFrames: UInt32,
+        ioData: UnsafeMutablePointer<AudioBufferList>?) -> OSStatus {
+
+        // Get the tone parameters
         let toneGenerator = unsafeBitCast(inRefCon, to: ToneGenerator.self)
         var theta = toneGenerator.theta
         let thetaIncrement = 2.0 * Double.pi * toneGenerator.frequency / ToneGenerator.SampleRate
 
+        // This is a mono tone generator so we only need the first buffer
         guard let ioPtr = UnsafeMutableAudioBufferListPointer(ioData),
               let monotoneChannel = ioPtr[ToneGenerator.MonotoneChannel].mData else {
             fatalError("Could not access the monotone channel in the passed in buffer")
@@ -79,36 +95,55 @@ class ToneGenerator {
     }
 
     private func createAudioUnit() -> AudioComponentInstance? {
-        // Find the default playback output unit
+        // Configure the search parameters to find the default playback output unit
+        // (called the kAudioUnitSubType_RemoteIO on iOS but
+        // kAudioUnitSubType_DefaultOutput on Mac OS X)
         var audioComponentDescription = AudioComponentDescription(componentType: kAudioUnitType_Output,
                                                                   componentSubType: kAudioUnitSubType_RemoteIO,
                                                                   componentManufacturer: kAudioUnitManufacturer_Apple,
                                                                   componentFlags: 0,
                                                                   componentFlagsMask: 0)
 
-        // Get the default playback unit
+        // Get the default playback output unit
         guard let defaultOutput = AudioComponentFindNext(nil, &audioComponentDescription) else {
-            fatalError("Can't find default output")
+            assertionFailure("Can't find default output")
+            return nil
         }
 
-        // Create the audio component instance using the output
+        // Create a new unit based on this that we'll use for output
         var toneUnit: AudioComponentInstance?
         guard AudioComponentInstanceNew(defaultOutput, &toneUnit) == noErr, let toneUnit else {
-            fatalError("Could not create AudioComponentInstance")
+            assertionFailure("Could not create AudioComponentInstance")
+            return nil
         }
 
-        // Set the tone rendering function
-        var renderCallback = AURenderCallbackStruct(inputProc: { (inRefCon, ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames, ioData) -> OSStatus in
-            return ToneGenerator.RenderToneCallback(inRefCon: inRefCon, ioActionFlags: ioActionFlags, inTimeStamp: inTimeStamp, inBusNumber: inBusNumber, inNumberFrames: inNumberFrames, ioData: ioData)
+        // Set our tone rendering function on the unit
+        var renderCallback = AURenderCallbackStruct(inputProc: { (inRefCon,
+                                                                  ioActionFlags,
+                                                                  inTimeStamp,
+                                                                  inBusNumber,
+                                                                  inNumberFrames,
+                                                                  ioData) -> OSStatus in
+            return ToneGenerator.RenderToneCallback(
+                inRefCon: inRefCon,
+                ioActionFlags: ioActionFlags,
+                inTimeStamp: inTimeStamp,
+                inBusNumber: inBusNumber,
+                inNumberFrames: inNumberFrames,
+                ioData: ioData)
         }, inputProcRefCon: Unmanaged.passUnretained(self).toOpaque())
 
-        // Set the callback
-        if AudioUnitSetProperty(toneUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0 /* inElement */, &renderCallback, UInt32(MemoryLayout.size(ofValue: renderCallback))) != noErr {
-            fatalError("Could not set the callback")
+        if AudioUnitSetProperty(toneUnit,
+                                kAudioUnitProperty_SetRenderCallback,
+                                kAudioUnitScope_Input,
+                                0 /* inElement */,
+                                &renderCallback,
+                                UInt32(MemoryLayout.size(ofValue: renderCallback))) != noErr {
+            assertionFailure("Could not set the callback")
+            return nil
         }
 
-        // Magic settings from Matt Gallagher
-        // Apparently sets to: 32bit, single channel, floating point, linear PCM
+        // Set the format to 32 bit, single channel, floating point, linear PCM
         var streamFormat = AudioStreamBasicDescription()
         streamFormat.mSampleRate = ToneGenerator.SampleRate
         streamFormat.mFormatID = kAudioFormatLinearPCM
@@ -119,8 +154,14 @@ class ToneGenerator {
         streamFormat.mChannelsPerFrame = 1
         streamFormat.mBitsPerChannel = ToneGenerator.BytesPerFloat * ToneGenerator.BitsPerByte
 
-        if AudioUnitSetProperty(toneUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0 /* inElement */, &streamFormat, UInt32(MemoryLayout.size(ofValue: streamFormat))) != noErr {
-            fatalError("Could not set the audio stream format")
+        if AudioUnitSetProperty(toneUnit,
+                                kAudioUnitProperty_StreamFormat,
+                                kAudioUnitScope_Input,
+                                0 /* inElement */,
+                                &streamFormat,
+                                UInt32(MemoryLayout.size(ofValue: streamFormat))) != noErr {
+            assertionFailure("Could not set the callback")
+            return nil
         }
 
         return toneUnit
