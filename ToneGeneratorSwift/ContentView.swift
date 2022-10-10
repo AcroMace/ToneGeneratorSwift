@@ -8,12 +8,27 @@
 import SwiftUI
 
 struct ContentView: View {
+
+    @State private var frequency = 880.0
+    @State private var isEditing = false
+    @State private var isPlaying = false
+
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+            Text(String(format: "Frequency: %.2f Hz", frequency))
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Slider(
+                value: $frequency,
+                in: 40...4000,
+                onEditingChanged: { editing in
+                    isEditing = editing
+                }
+            )
+
+            Button(isPlaying ? "Stop" : "Play") {
+                isPlaying = !isPlaying
+            }
         }
         .padding()
     }
